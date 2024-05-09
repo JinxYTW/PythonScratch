@@ -3,7 +3,7 @@ from PyQt6.QtCore import Qt, QMimeData, QRectF, QPoint
 from PyQt6.QtGui import QDrag, QCursor, QIcon,QPen
 
 from design import ForBlockWidget, WhileBlockWidget,ConnectionPoint
-from interpreter import WorkArea
+from interpreter import WorkAreaInterpreter
 
 
 
@@ -92,7 +92,11 @@ class BlockList(QListWidget):
             parent: The parent widget (default: None).
         """
         super().__init__(parent)
+         # Créer la WorkArea
         self.work_area = WorkArea()
+        
+        
+        
         
         self.setDragEnabled(True)
           # Create the layout
@@ -111,30 +115,8 @@ class BlockList(QListWidget):
         button1 = QPushButton('Clear')
         button2 = QPushButton('Launch')
         button3 = QPushButton('Save')
-
-        
-
-        def clear(self):
-            print("Le bouton 'Clear' a été cliqué!")
-
-        button1.clicked.connect(clear)
-
-        def launch(self):
-            if hasattr(self, 'work_area') and isinstance(self.work_area, WorkArea):
-                self.work_area.collect_blocks_and_connections()
-                self.work_area.launch_program()
-                print("Le bouton 'Launch' a été cliqué!")
-            else:
-                print("Erreur : work_area n'est pas initialisé correctement.")
-
-        button2.clicked.connect(launch)
-
-        def save(self):
-            print("Le bouton 'Save' a été cliqué!")
-
-        button3.clicked.connect(save)
-
-        
+        button1.clicked.connect(self.clear)
+        button2.clicked.connect(self.launch)
 
         # Create the separator
         separator = QFrame()
@@ -148,6 +130,38 @@ class BlockList(QListWidget):
         self.layout.addWidget(button1)
         self.layout.addWidget(button2)
         self.layout.addWidget(button3)
+
+        
+
+    def clear(self):
+        print("Le bouton 'Clear' a été cliqué!")
+
+        
+
+    def launch(self):
+        # Créer une instance de WorkAreaInterpreter avec la WorkArea actuelle
+        interpreter = WorkAreaInterpreter(self.work_area)
+
+        # Utiliser WorkAreaInterpreter pour collecter les blocs et les connexions
+        blocks, connections = interpreter.collect_blocks_and_connections()
+
+        # Imprimer les blocs et les connexions
+        print("Blocks:", blocks)
+        print("Connections:", connections)
+
+        # Lancer le programme à partir de WorkAreaInterpreter
+        interpreter.launch_program()
+
+        print("Le bouton 'Launch' a été cliqué!")
+
+    def save(self):
+            print("Le bouton 'Save' a été cliqué!")
+
+        
+
+        
+
+        
 
         
         
@@ -588,9 +602,10 @@ class MainWindow(QMainWindow):
         
         self.setWindowTitle("Get Jinxed !")
         self.setGeometry(100, 100, 800, 600)
-
         self.work_area = WorkArea(self)
-        self.block_list = BlockList(self)
+        self.block_list = BlockList(parent=self.work_area)
+        
+        
 
         block_names = ["Connection","For", "While","If","Else","Elif", "Walk", "Dance", "Rotate", "Side Step", "Scan", "Eye Move", "Stop", "Wait"]
 
@@ -659,5 +674,6 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication([])
     window = MainWindow()
+    
     window.show()
     app.exec()

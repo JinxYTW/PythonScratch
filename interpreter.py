@@ -244,10 +244,11 @@ except Exception as e:
 
 print(code)
 
-class WorkArea:
-    def __init__(self):
+class WorkAreaInterpreter:
+    def __init__(self,work_area):
         self.blocks = []  # Liste pour stocker tous les blocs
         self.connections = []  # Liste pour stocker toutes les connexions entre les blocs
+        self.work_area = work_area
     
     def add_block(self, block):
         self.blocks.append(block)
@@ -256,21 +257,26 @@ class WorkArea:
         self.connections.append(connection)
     
     def collect_blocks_and_connections(self):
-        # Fonction récursive pour collecter tous les blocs et connexions
-        widget = self  # Utilisez self pour faire référence à l'instance de la classe
-        if isinstance(widget, QGraphicsWidget):
-            if hasattr(widget, 'input_connection_points') and hasattr(widget, 'output_connection_points'):
-                # Collecte le bloc
-                self.add_block(widget)
+        blocks = []
+        connections = []
 
-                # Collecte les connexions
-                for output_point in widget.output_connection_points:
-                    for connection in output_point.connections:
-                        self.add_connection(connection)
+        def collect(widget):
+            if isinstance(widget, QGraphicsWidget):
+                if hasattr(widget, 'input_connection_points') and hasattr(widget, 'output_connection_points'):
+                    # Collecte le bloc
+                    blocks.append(widget)
 
-                # Parcours récursif des enfants
-                for child in widget.childItems():
-                    self.collect_blocks_and_connections(child)
+                    # Collecte les connexions
+                    for output_point in widget.output_connection_points:
+                        for connection in output_point.connections:
+                            connections.append(connection)
+
+                    # Parcours récursif des enfants
+                    for child in widget.childItems():
+                        collect(child)
+
+        collect(self.work_area)
+        return blocks, connections
 
     def launch_program(self):
         # Génère et exécute le programme visuel créé dans la work_area
