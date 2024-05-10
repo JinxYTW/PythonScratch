@@ -220,9 +220,9 @@ class ConnectBlock:
         
 
 
-        
+ ####################################################################       
 
-blockss = [
+blocks = [
     ForBlock("i",0,10,[WalkBlock(10),RotateBlock(90)]),
     WhileBlock("True",[WalkBlock(10),RotateBlock(90)]),
     WalkBlock(10),
@@ -233,7 +233,7 @@ blockss = [
     StopBlock()
 ]
 code = ""
-for block in blockss:
+for block in blocks:
     code += block.to_python_code()
 
 # Exécutez le code
@@ -244,4 +244,51 @@ except Exception as e:
 
 print(code)
 
+####################################################################
+
+def generate_python_code(blocks, first_block, last_block):
+    visited = set()
+    code = ""
+
+    def dfs(block):
+        nonlocal code, visited
+
+        # Vérifier si le bloc a déjà été visité
+        if block in visited:
+            return
+
+        # Marquer le bloc comme visité
+        visited.add(block)
+
+        # Générer le code Python pour le bloc en fonction de son type
+        if isinstance(block, ForBlock) or isinstance(block, WhileBlock) or isinstance(block, IfBlock) or isinstance(block, ElseBlock) or isinstance(block, ElifBlock):
+            code += block.to_python_code() + ":\n"
+        else:
+            code += block.to_python_code()
+
+        # Si le bloc a des connexions de sortie, continuer la navigation
+        if block.output:
+            next_block = block.output
+            dfs(next_block)
+
+    # Démarrer le parcours à partir du premier bloc
+    dfs(first_block)
+
+    return code
+
+
+# Identifier le premier et le dernier bloc à exécuter
+first_block = blocks[0]  # Premier bloc (ForBlock)
+last_block = blocks[-1]  # Dernier bloc (StopBlock)
+
+# Générer le code Python en respectant l'ordre d'exécution
+generated_code = generate_python_code(blocks, first_block, last_block)
+
+# Exécuter le code généré
+try:
+    exec(generated_code)
+except Exception as e:
+    print(f"Error: {e}")
+
+print(generated_code)
 
