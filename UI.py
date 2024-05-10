@@ -3,7 +3,7 @@ from PyQt6.QtCore import Qt, QMimeData, QRectF, QPoint
 from PyQt6.QtGui import QDrag, QCursor, QIcon,QPen
 
 from design import ForBlockWidget, WhileBlockWidget,ConnectionPoint
-from interpreter import WorkAreaInterpreter
+
 
 
 
@@ -139,18 +139,7 @@ class BlockList(QListWidget):
         
 
     def launch(self):
-        # Créer une instance de WorkAreaInterpreter avec la WorkArea actuelle
-        interpreter = WorkAreaInterpreter(self.work_area)
-
-        # Utiliser WorkAreaInterpreter pour collecter les blocs et les connexions
-        blocks, connections = interpreter.collect_blocks_and_connections()
-
-        # Imprimer les blocs et les connexions
-        print("Blocks:", blocks)
-        print("Connections:", connections)
-
-        # Lancer le programme à partir de WorkAreaInterpreter
-        interpreter.launch_program()
+       
 
         print("Le bouton 'Launch' a été cliqué!")
 
@@ -551,7 +540,56 @@ class WorkArea(QGraphicsView):
         return True
 
     
+    def get_blocks(self):
+        blocks = []
+        for item in self.scene.items():
+            if isinstance(item, ForBlockItem) or isinstance(item, WhileBlockItem):
+                blocks.append(item)
+        return blocks
+    
+    def get_connections(self):
+        return self.connection_manager.connections
+    
+    def organize_blocks_for_execution(self):
+        blocks = self.get_blocks()
+        connections = self.get_connections()
 
+        # Initialiser les listes de blocs sans entrée et sans sortie
+        blocks_without_input = []
+        blocks_without_output = []
+
+        # Parcourir tous les blocs pour identifier ceux sans entrée et sans sortie
+        for block in blocks:
+            has_input = False
+            has_output = False
+            
+            # Vérifier les connexions entrantes et sortantes pour chaque bloc
+            for connection in connections:
+                start_block, end_block, connection_point = connection
+                if end_block == block:
+                    has_input = True
+                if start_block == block:
+                    has_output = True
+            
+            # Ajouter le bloc à la liste correspondante
+            if not has_input:
+                blocks_without_input.append(block)
+            if not has_output:
+                blocks_without_output.append(block)
+
+        # Identifier le premier bloc (sans entrée)
+        if blocks_without_input:
+            first_block = blocks_without_input[0]
+            print(f"Premier bloc à exécuter : {first_block}")
+        else:
+            print("Aucun premier bloc identifié")
+
+        # Identifier le dernier bloc (sans sortie)
+        if blocks_without_output:
+            last_block = blocks_without_output[-1]  # Utiliser le dernier bloc sans sortie
+            print(f"Dernier bloc à exécuter : {last_block}")
+        else:
+            print("Aucun dernier bloc identifié")
     
 
             
@@ -623,9 +661,9 @@ class MainWindow(QMainWindow):
             button_layout.addWidget(button)
             
             if button_names[i] == "On/Off":
-                button.clicked.connect(self.on_off_clicked)
+                button.clicked.connect(self.execute_program)
             elif button_names[i] == "Up":
-                button.clicked.connect(self.up_clicked)
+                button.clicked.connect(self.organize_blocks_and_execute)
             elif button_names[i] == "Down":
                 button.clicked.connect(self.down_clicked)
             elif button_names[i] == "Left":
@@ -668,6 +706,43 @@ class MainWindow(QMainWindow):
 
     def widgets(self):
         return self.findChildren(QWidget)
+    
+    def execute_program(self):
+        # Récupérer la zone de travail
+        work_area = self.work_area
+        
+        # Récupérer tous les blocs dans la zone de travail
+        blocks = work_area.get_blocks()
+        print(f"Nombre de blocs dans la zone de travail : {len(blocks)}")
+        
+        # Récupérer toutes les connexions dans la zone de travail
+        connections = work_area.get_connections()
+        print(f"Nombre de connexions dans la zone de travail : {len(connections)}")
+
+        # Maintenant tu peux utiliser ces blocs et connexions pour exécuter ton programme
+        # Par exemple, tu pourrais parcourir les blocs et exécuter les instructions en fonction des connexions
+        
+        # Exemple d'utilisation (à adapter selon tes besoins) :
+        for block in blocks:
+            print(f"Bloc à la position ({block.pos().x()}, {block.pos().y()})")
+            print(f"Type de bloc : {block.__class__.__name__}")
+        
+        for connection in connections:
+            start_block, end_block, connection_point = connection
+            print(f"Connexion de {start_block} à {end_block} au point {connection_point}")
+
+
+    def organize_blocks_and_execute(self):
+        # Récupérer la zone de travail
+        work_area = self.work_area
+        
+        # Organiser les blocs pour l'exécution
+        work_area.organize_blocks_for_execution()
+
+        # Maintenant tu peux utiliser ces informations pour créer une liste d'exécution
+        # et interpréter les actions à exécuter dans ton programme
+
+    
         
     
 

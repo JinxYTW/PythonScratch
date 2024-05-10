@@ -244,48 +244,4 @@ except Exception as e:
 
 print(code)
 
-class WorkAreaInterpreter:
-    def __init__(self,work_area):
-        self.blocks = []  # Liste pour stocker tous les blocs
-        self.connections = []  # Liste pour stocker toutes les connexions entre les blocs
-        self.work_area = work_area
-    
-    def add_block(self, block):
-        self.blocks.append(block)
-    
-    def add_connection(self, connection):
-        self.connections.append(connection)
-    
-    def collect_blocks_and_connections(self):
-        blocks = []
-        connections = []
 
-        def collect(widget):
-            if isinstance(widget, QGraphicsWidget):
-                if hasattr(widget, 'input_connection_points') and hasattr(widget, 'output_connection_points'):
-                    # Collecte le bloc
-                    blocks.append(widget)
-
-                    # Collecte les connexions
-                    for output_point in widget.output_connection_points:
-                        for connection in output_point.connections:
-                            connections.append(connection)
-
-                    # Parcours récursif des enfants
-                    for child in widget.childItems():
-                        collect(child)
-
-        collect(self.work_area)
-        return blocks, connections
-
-    def launch_program(self):
-        # Génère et exécute le programme visuel créé dans la work_area
-        code = ""
-        for block in self.blocks:
-            code += block.to_python_code()
-
-        # Exécute le code
-        try:
-            exec(code)
-        except Exception as e:
-            print(f"Error: {e}")
