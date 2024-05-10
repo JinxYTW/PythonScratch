@@ -554,42 +554,55 @@ class WorkArea(QGraphicsView):
         blocks = self.get_blocks()
         connections = self.get_connections()
 
-        # Initialiser les listes de blocs sans entrée et sans sortie
-        blocks_without_input = []
-        blocks_without_output = []
+        # Dictionnaire pour stocker les blocs et leurs connexions sortantes
+        next_blocks = {}
 
-        # Parcourir tous les blocs pour identifier ceux sans entrée et sans sortie
+        # Identifier le premier et le dernier bloc
+        first_block = None
+        last_block = None
+
+        # Parcourir tous les blocs pour initialiser le dictionnaire
         for block in blocks:
-            has_input = False
-            has_output = False
-            
-            # Vérifier les connexions entrantes et sortantes pour chaque bloc
-            for connection in connections:
-                start_block, end_block, connection_point = connection
-                if end_block == block:
-                    has_input = True
-                if start_block == block:
-                    has_output = True
-            
-            # Ajouter le bloc à la liste correspondante
-            if not has_input:
-                blocks_without_input.append(block)
-            if not has_output:
-                blocks_without_output.append(block)
+            next_blocks[block] = []
 
-        # Identifier le premier bloc (sans entrée)
-        if blocks_without_input:
-            first_block = blocks_without_input[0]
-            print(f"Premier bloc à exécuter : {first_block}")
-        else:
-            print("Aucun premier bloc identifié")
+        # Construire le dictionnaire des connexions sortantes
+        for start_block, end_block, connection_point in connections:
+            if start_block in next_blocks:
+                next_blocks[start_block].append(end_block)
 
-        # Identifier le dernier bloc (sans sortie)
-        if blocks_without_output:
-            last_block = blocks_without_output[-1]  # Utiliser le dernier bloc sans sortie
-            print(f"Dernier bloc à exécuter : {last_block}")
-        else:
-            print("Aucun dernier bloc identifié")
+        # Trouver le premier bloc (sans entrée)
+        for block in blocks:
+            if not any(start_block == block for _, _, start_block in connections):
+                first_block = block
+                break
+
+        # Trouver le dernier bloc (sans sortie)
+        for block in blocks:
+            if not any(end_block == block for _, end_block, _ in connections):
+                last_block = block
+                break
+
+        # Construire la liste ordonnée des blocs à exécuter
+        ordered_blocks = []
+        current_block = first_block
+
+        while current_block is not None:
+            ordered_blocks.append(current_block)
+
+            # Trouver le bloc suivant à exécuter en utilisant les connexions
+            if current_block in next_blocks:
+                next_block = next_blocks[current_block]
+                if next_block:
+                    current_block = next_block[0]  # Prends le premier bloc suivant
+                else:
+                    current_block = None
+            else:
+                current_block = None
+        print(ordered_blocks)
+
+        return ordered_blocks
+    
+    
     
 
             
