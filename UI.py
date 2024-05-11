@@ -553,33 +553,34 @@ class WorkArea(QGraphicsView):
     
     def organize_blocks_for_execution(self):
         blocks = self.get_blocks()
+        print("Blocks:", blocks)
         connections = self.get_connections()
+        print("Connections:", connections)  
 
         # Dictionnaire pour stocker les blocs et leurs connexions sortantes
-        next_blocks = {}
-
-        # Identifier le premier et le dernier bloc
-        first_block = None
-        last_block = None
-
-        # Parcourir tous les blocs pour initialiser le dictionnaire
-        for block in blocks:
-            next_blocks[block] = []
+        next_blocks = {block: [] for block in blocks}
 
         # Construire le dictionnaire des connexions sortantes
         for start_block, end_block, connection_point in connections:
+            # Assurez-vous que start_block et end_block sont bien les objets prévus
             if start_block in next_blocks:
                 next_blocks[start_block].append(end_block)
+            else:
+                print(f"start_block {start_block} not found in next_blocks keys")
 
         # Trouver le premier bloc (sans entrée)
+        first_block = None
         for block in blocks:
-            if not any(start_block == block for _, _, start_block in connections):
+            # Convertissez le bloc en ForBlockWidget si nécessaire pour la comparaison
+            if not any(start_block == block.widget() for _, _, start_block in connections):
                 first_block = block
                 break
 
         # Trouver le dernier bloc (sans sortie)
+        last_block = None
         for block in blocks:
-            if not any(end_block == block for _, end_block, _ in connections):
+            # Convertissez le bloc en ForBlockWidget si nécessaire pour la comparaison
+            if not any(end_block == block.widget() for _, end_block, _ in connections):
                 last_block = block
                 break
 
@@ -591,16 +592,13 @@ class WorkArea(QGraphicsView):
             ordered_blocks.append(current_block)
 
             # Trouver le bloc suivant à exécuter en utilisant les connexions
-            if current_block in next_blocks:
-                next_block = next_blocks[current_block]
-                if next_block:
-                    current_block = next_block[0]  # Prends le premier bloc suivant
-                else:
-                    current_block = None
+            next_block_list = next_blocks.get(current_block, [])
+            if next_block_list:
+                current_block = next_block_list[0]  # Prendre le premier bloc suivant
             else:
                 current_block = None
-        print(ordered_blocks)
-        #Renvoie des Items au lieu des Widgets utilisées pour les connexions
+
+        print("Ordered Blocks:", ordered_blocks)
         return ordered_blocks
     
     
