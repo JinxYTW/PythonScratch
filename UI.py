@@ -545,6 +545,7 @@ class WorkArea(QGraphicsView):
         for item in self.scene.items():
             if isinstance(item, ForBlockItem) or isinstance(item, WhileBlockItem):
                 blocks.append(item)
+        print(blocks)
         return blocks
     
     def get_connections(self):
@@ -599,7 +600,7 @@ class WorkArea(QGraphicsView):
             else:
                 current_block = None
         print(ordered_blocks)
-
+        #Renvoie des Items au lieu des Widgets utilisées pour les connexions
         return ordered_blocks
     
     
