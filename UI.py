@@ -601,6 +601,8 @@ class WorkArea(QGraphicsView):
         print("Ordered Blocks:", ordered_blocks)
         return ordered_blocks
     
+    #Soit modifier la création des connexions afin d'avoir des Items,soit modifier afin que les Item soient reliées à des Item
+    
     
     
 
