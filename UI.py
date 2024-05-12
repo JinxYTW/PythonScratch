@@ -493,7 +493,11 @@ class WorkArea(QGraphicsView):
 
         # Ajouter la connexion dans le gestionnaire de connexions
         start_block = start_point.parent_block
+        print("Start block:", type(start_block))
         end_block = end_point.parent_block
+        print("End block:", type(end_block))
+
+        
         if not self.connection_manager.has_connection(start_block, end_block):
             # Créer la ligne de connexion dans la scène
             start_pos = start_point.scenePos()
