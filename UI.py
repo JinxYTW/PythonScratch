@@ -465,7 +465,7 @@ class WorkArea(QGraphicsView):
 
 
     def mouseReleaseEvent(self, event):
-        print("Mouse release event")
+        
 
         # Imprimer les connexions existantes
         self.connection_manager.print_connections()
@@ -493,9 +493,9 @@ class WorkArea(QGraphicsView):
 
         # Ajouter la connexion dans le gestionnaire de connexions
         start_block = start_point.parent_block
-        print("Start block:", type(start_block))
+        
         end_block = end_point.parent_block
-        print("End block:", type(end_block))
+        
 
         
         if not self.connection_manager.has_connection(start_block, end_block):
@@ -549,7 +549,7 @@ class WorkArea(QGraphicsView):
         for item in self.scene.items():
             if isinstance(item, ForBlockItem) or isinstance(item, WhileBlockItem):
                 blocks.append(item)
-        print(blocks)
+        
         return blocks
     
     def get_widgets(self):
@@ -558,7 +558,7 @@ class WorkArea(QGraphicsView):
             if isinstance(item, ForBlockItem) or isinstance(item, WhileBlockItem):
                 # Récupérer le widget ForBlockWidget associé à l'item ForBlockItem
                 blocks.append(item.for_block)
-        print(blocks)
+        
         return blocks
     
     def get_connections(self):
@@ -566,20 +566,16 @@ class WorkArea(QGraphicsView):
     
     def organize_blocks_for_execution(self):
         blocks = self.get_widgets()
-        print("Blocks:", blocks)
         connections = self.get_connections()
-        print("Connections:", connections)  
 
-        # Dictionnaire pour stocker les blocs et leurs connexions sortantes
-        next_blocks = {block: [] for block in blocks}
+        # Dictionnaire pour stocker les blocs et leurs connexions sortantes par type
+        next_blocks = {block: {'loop_exit': [], 'body_code': []} for block in blocks}
 
-        # Construire le dictionnaire des connexions sortantes
+        # Construire le dictionnaire des connexions sortantes par type
         for start_block, end_block, connection_point in connections:
-            # Assurez-vous que start_block et end_block sont bien les objets prévus
-            if start_block in next_blocks:
-                next_blocks[start_block].append(end_block)
-            else:
-                print(f"start_block {start_block} not found in next_blocks keys")
+            connection_type = self.connection_manager.get_connection_type(connection_point)
+            if connection_type:
+                next_blocks[start_block][connection_type].append(end_block)
 
         # Trouver le premier bloc (sans entrée)
         first_block = None
@@ -587,33 +583,34 @@ class WorkArea(QGraphicsView):
             has_incoming_connection = any(block == end_block for _, end_block, _ in connections)
             if not has_incoming_connection:
                 first_block = block
-                print("First block:", first_block)
                 break
 
-        # Trouver le dernier bloc (sans sortie)
-        last_block = None
-        for block in blocks:
-            if not next_blocks[block]:  # Vérifier s'il n'y a pas de blocs suivants
-                last_block = block
-                print("Last block:", last_block)
-                break
-
-        # Construire la liste ordonnée des blocs à exécuter
+        # Construire la liste ordonnée des blocs à exécuter avec leurs blocs en body_code
         ordered_blocks = []
-        current_block = first_block
 
-        while current_block is not None:
-            ordered_blocks.append(current_block)
+        def build_ordered_blocks(block):
+            # Récupérer les blocs suivants en body_code
+            body_code_blocks = next_blocks[block]['body_code']
+            ordered_blocks.append([block, body_code_blocks])
 
-            # Trouver le bloc suivant à exécuter en utilisant les connexions
-            next_block_list = next_blocks.get(current_block, [])
-            if next_block_list:
-                current_block = next_block_list[0]  # Prendre le premier bloc suivant
-            else:
-                current_block = None
+            # Récursivement traiter les blocs suivants en body_code
+            for next_block in body_code_blocks:
+                build_ordered_blocks(next_block)
 
-        print("Ordered Blocks:", ordered_blocks)
+        # Commencer la construction des blocs ordonnés à partir du premier bloc trouvé
+        if first_block:
+            build_ordered_blocks(first_block)
+
+        # Afficher les blocs ordonnés (pour le débogage)
+        print("Ordered Blocks:")
+        for block_info in ordered_blocks:
+            print(block_info[0], "=> body_code:", block_info[1])
+
+        print(ordered_blocks)
+
         return ordered_blocks
+
+
     
     #Soit modifier la création des connexions afin d'avoir des Items,soit modifier afin que les Item soient reliées à des Item
     
@@ -750,14 +747,7 @@ class MainWindow(QMainWindow):
         # Maintenant tu peux utiliser ces blocs et connexions pour exécuter ton programme
         # Par exemple, tu pourrais parcourir les blocs et exécuter les instructions en fonction des connexions
         
-        # Exemple d'utilisation (à adapter selon tes besoins) :
-        for block in blocks:
-            print(f"Bloc à la position ({block.pos().x()}, {block.pos().y()})")
-            print(f"Type de bloc : {block.__class__.__name__}")
-        
-        for connection in connections:
-            start_block, end_block, connection_point = connection
-            print(f"Connexion de {start_block} à {end_block} au point {connection_point}")
+       
 
 
     def organize_blocks_and_execute(self):
