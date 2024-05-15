@@ -552,11 +552,20 @@ class WorkArea(QGraphicsView):
         print(blocks)
         return blocks
     
+    def get_widgets(self):
+        blocks = []
+        for item in self.scene.items():
+            if isinstance(item, ForBlockItem) or isinstance(item, WhileBlockItem):
+                # Récupérer le widget ForBlockWidget associé à l'item ForBlockItem
+                blocks.append(item.for_block)
+        print(blocks)
+        return blocks
+    
     def get_connections(self):
         return self.connection_manager.connections
     
     def organize_blocks_for_execution(self):
-        blocks = self.get_blocks()
+        blocks = self.get_widgets()
         print("Blocks:", blocks)
         connections = self.get_connections()
         print("Connections:", connections)  
@@ -575,17 +584,18 @@ class WorkArea(QGraphicsView):
         # Trouver le premier bloc (sans entrée)
         first_block = None
         for block in blocks:
-            # Convertissez le bloc en ForBlockWidget si nécessaire pour la comparaison
-            if not any(start_block == block.widget() for _, _, start_block in connections):
+            has_incoming_connection = any(block == end_block for _, end_block, _ in connections)
+            if not has_incoming_connection:
                 first_block = block
+                print("First block:", first_block)
                 break
 
         # Trouver le dernier bloc (sans sortie)
         last_block = None
         for block in blocks:
-            # Convertissez le bloc en ForBlockWidget si nécessaire pour la comparaison
-            if not any(end_block == block.widget() for _, end_block, _ in connections):
+            if not next_blocks[block]:  # Vérifier s'il n'y a pas de blocs suivants
                 last_block = block
+                print("Last block:", last_block)
                 break
 
         # Construire la liste ordonnée des blocs à exécuter
@@ -730,7 +740,7 @@ class MainWindow(QMainWindow):
         work_area = self.work_area
         
         # Récupérer tous les blocs dans la zone de travail
-        blocks = work_area.get_blocks()
+        blocks = work_area.get_widgets()
         print(f"Nombre de blocs dans la zone de travail : {len(blocks)}")
         
         # Récupérer toutes les connexions dans la zone de travail
