@@ -591,24 +591,39 @@ class WorkArea(QGraphicsView):
         def build_ordered_blocks(block):
             # Récupérer les blocs suivants en body_code
             body_code_blocks = next_blocks[block]['body_code']
-            ordered_blocks.append([block, body_code_blocks])
+            current_block_info = [block, []]
 
             # Récursivement traiter les blocs suivants en body_code
             for next_block in body_code_blocks:
-                build_ordered_blocks(next_block)
+                current_block_info[1].append(build_ordered_blocks(next_block))
+
+            # Ajouter les blocs suivants en loop_exit
+            for next_block in next_blocks[block]['loop_exit']:
+                ordered_blocks.append(build_ordered_blocks(next_block))
+
+            return current_block_info
 
         # Commencer la construction des blocs ordonnés à partir du premier bloc trouvé
         if first_block:
-            build_ordered_blocks(first_block)
+            ordered_blocks.append(build_ordered_blocks(first_block))
+
+        def print_block_info(block_info, level=0):
+            indent = "    " * level
+            print(f"{indent}{block_info[0]} => body_code: {len(block_info[1])} sub-blocks")
+            for sub_block_info in block_info[1]:
+                print_block_info(sub_block_info, level + 1)
+
+        # Inverser l'ordre des blocs
+        ordered_blocks.reverse()
 
         # Afficher les blocs ordonnés (pour le débogage)
         print("Ordered Blocks:")
         for block_info in ordered_blocks:
-            print(block_info[0], "=> body_code:", block_info[1])
-
-        print(ordered_blocks)
+            print_block_info(block_info)
 
         return ordered_blocks
+
+
 
 
     
