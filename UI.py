@@ -2,8 +2,11 @@ from PyQt6.QtWidgets import QApplication, QMainWindow,QGridLayout, QPushButton, 
 from PyQt6.QtCore import Qt, QMimeData, QRectF, QPoint
 from PyQt6.QtGui import QDrag, QCursor, QIcon,QPen
 
-from design import ForBlockWidget, WhileBlockWidget,ConnectionPoint
+
 from blocks.for_block_item import ForBlockItem
+from models.connection_manager import ConnectionManager
+from models.block_manager import BlockManager
+import blocks.design as design
 
       
 class WhileBlockItem(QGraphicsProxyWidget):
@@ -11,7 +14,7 @@ class WhileBlockItem(QGraphicsProxyWidget):
         super().__init__()
         self.setGeometry(QRectF(x, y, width, height))
         self.work_area = work_area
-        self.while_block = WhileBlockWidget()
+        self.while_block = design.WhileBlockWidget()
         
          # Create a QGraphicsView
         view = QGraphicsView()
@@ -116,123 +119,12 @@ class BlockList(QListWidget):
         """
         block_type = self.currentItem().text()
         mouse_position = QCursor.pos()
-
-        
-        
-        
-
         drag = QDrag(self)
         mime_data = QMimeData()
         mime_data.setText(block_type)
         drag.setMimeData(mime_data)
         drag.exec()
-
-class ConnectionManager:
-    def __init__(self):
-        self.connections = []
-        self.connection_types = {}  # Dictionnaire pour stocker les types de connexion
-
-    def add_connection(self, start_block, end_block, connection_point):
-        """
-        Add a connection between two blocks with a specific connection point.
-
-        Args:
-            start_block: The block where the connection starts.
-            end_block: The block where the connection ends.
-            connection_point: The point of connection (tuple of coordinates).
-        """
-        # Vérifier si une connexion entre les mêmes blocs avec le même type de connexion existe déjà
-        existing_connection = self.get_existing_connection(start_block, end_block)
-        if existing_connection:
-            # Si une connexion existe déjà, ne pas ajouter une nouvelle connexion
-            print(f"Connection already exists between {start_block} and {end_block} with type {existing_connection[2]}")
-            return
-
-        # Ajouter la nouvelle connexion
-        self.connections.append((start_block, end_block, connection_point))
-        
-        # Déterminer le type de connexion à partir du point de connexion
-        connection_type = self.get_connection_type(connection_point)
-        if connection_type:
-            # Convertir le QPointF en tuple (x, y) pour l'utiliser comme clé hashable
-            connection_point_tuple = (connection_point.x(), connection_point.y())
-            # Ajouter le type de connexion au dictionnaire de types de connexion
-            self.connection_types[(start_block, connection_point_tuple)] = connection_type
-
-    def get_existing_connection(self, start_block, end_block):
-        """
-        Get an existing connection between two blocks.
-
-        Args:
-            start_block: The block where the connection starts.
-            end_block: The block where the connection ends.
-
-        Returns:
-            The existing connection if found (start_block, end_block, connection_point), None otherwise.
-        """
-        for connection in self.connections:
-            if connection[0] == start_block and connection[1] == end_block:
-                return connection
-        return None
-
-
-    def remove_connection(self, start_block, end_block, connection_point):
-        """
-        Remove a connection between two blocks with a specific connection point.
-
-        Args:
-            start_block: The block where the connection starts.
-            end_block: The block where the connection ends.
-            connection_point: The point of connection (tuple of coordinates).
-        """
-        connection_tuple = (start_block, end_block, connection_point)
-        if connection_tuple in self.connections:
-            self.connections.remove(connection_tuple)
-            if (start_block, connection_point) in self.connection_types:
-                del self.connection_types[(start_block, connection_point)]
-
-    def has_connection(self, start_block, end_block):
-        """
-        Check if there is a connection between two blocks.
-
-        Args:
-            start_block: The block where the connection starts.
-            end_block: The block where the connection ends.
-
-        Returns:
-            True if there is a connection, False otherwise.
-        """
-        return (start_block, end_block) in self.connections
-
-    def get_connection_type(self, connection_point):
-        """
-        Determine the type of connection (input or output) based on the position of the connection point.
-
-        Args:
-            connection_point: The QPointF object representing the connection point.
-
-        Returns:
-            The connection type ('input' or 'output').
-        """
-        x = connection_point.x()
-        y = connection_point.y()
-
-        # Determine the connection type based on the y-coordinate of the connection point
-        if x == 180 and y == 25:
-            return 'body_code'  # This corresponds to the 'body_code' connection point
-        elif x == 180 and y == 75:
-            return 'loop_exit'  # This corresponds to the 'loop_exit' connection point
-        else:
-            return None  # Unknown connection type
-
-    def print_connections(self):
-        """
-        Print all existing connections in the work area.
-        """
-        for connection in self.connections:
-            start_block, end_block, connection_point = connection
-            print(f"Connection from {start_block} to {end_block} at {connection_point} ({self.get_connection_type(connection_point)})")
-    
+ 
 
 class WorkArea(QGraphicsView):
     """
@@ -280,41 +172,17 @@ class WorkArea(QGraphicsView):
         event.accept()
     
     def dropEvent(self, event):
-        """
-        Event handler for drop event.
-
-        Args:
-            event: The drop event.
-        """
         block_type = event.mimeData().text()
         point = event.position().toPoint()
         pos = self.mapToScene(point)
         x, y, width, height = pos.x(), pos.y(), 100, 100  
         work_area = self  # Pass a reference to the work area
 
-        if block_type == "For":
-            block = ForBlockItem(x, y, width, height, work_area)
-            block.setZValue(0)
-            self.scene.addItem(block)  # Add the block to the scene
-
-             # Ajouter les points de connexion de block à la scène
-            for input_point in block.for_block.input_connection_points:
-                input_point.setZValue(2) 
-                  
-            for output_point in block.for_block.output_connection_points:
-                output_point.setZValue(2) 
-            
-        # Add conditions for other block types here
-        elif block_type == "While":
-            block = WhileBlockItem(x, y, width, height, work_area)
-            self.scene.addItem(block)
-        
-
-        block.setPos(pos.x() - width / 2, pos.y() - height / 2)
+        block_manager = BlockManager(self.scene,work_area)
+        block_manager.create_block(block_type, x, y, width, height)
         event.acceptProposedAction()
         self.scene.update()
         
-
 
     def mouseDoubleClickEvent(self, event):
         """
@@ -547,25 +415,6 @@ class WorkArea(QGraphicsView):
             print_block_info(block_info)
 
         return ordered_blocks
-
-
-
-
-    
-    #Soit modifier la création des connexions afin d'avoir des Items,soit modifier afin que les Item soient reliées à des Item
-    
-    
-    
-
-            
-
-
-
-
-    
-
-    
-
 
 
 

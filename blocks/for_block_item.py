@@ -3,6 +3,7 @@ from PyQt6.QtCore import QRectF, Qt
 from PyQt6.QtWidgets import QGraphicsScene
 from design import ForBlockWidget
 
+
 class ForBlockItem(QGraphicsProxyWidget):
     def __init__(self, x, y, width, height, work_area):
         super().__init__()

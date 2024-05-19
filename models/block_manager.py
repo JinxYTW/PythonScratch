@@ -33,6 +33,7 @@ class ForBlockManager:
         for output_point in block.for_block.output_connection_points:
             output_point.setZValue(2)
 
+        block.setPos(x - width / 2, y - height / 2)
 
 
 
@@ -41,16 +42,5 @@ class ForBlockManager:
 
 
 
-# Dans votre dropEvent
-def dropEvent(self, event):
-    block_type = event.mimeData().text()
-    point = event.position().toPoint()
-    pos = self.mapToScene(point)
-    x, y, width, height = pos.x(), pos.y(), 100, 100  
-    work_area = self  # Pass a reference to the work area
 
-    block_manager = BlockManager(self.scene)
-    block_manager.create_block(block_type, x, y, width, height)
-    #block.setPos(pos.x() - width / 2, pos.y() - height / 2)
-    event.acceptProposedAction()
-    self.scene.update()
+
