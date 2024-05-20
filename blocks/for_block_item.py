@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QGraphicsProxyWidget, QGraphicsView
 from PyQt6.QtCore import QRectF, Qt
 from PyQt6.QtWidgets import QGraphicsScene
-from design import ForBlockWidget
+from blocks.design import ForBlockWidget
 
 
 class ForBlockItem(QGraphicsProxyWidget):
