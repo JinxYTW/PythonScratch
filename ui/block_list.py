@@ -6,10 +6,13 @@ from PyQt6.QtWidgets import QFrame  # Import the QFrame class
 from PyQt6.QtWidgets import QVBoxLayout  # Import the QVBoxLayout class
 
 class BlockList(QListWidget):
-    def __init__(self, parent=None):
+    def __init__(self,blocklist_function, parent=None):
         
 
         super().__init__(parent)
+
+        self.blocklist_function = blocklist_function
+        
         self.setDragEnabled(True)
         self.setAcceptDrops(False)
         self.layout = QVBoxLayout()  # Create the QVBoxLayout object
@@ -27,7 +30,7 @@ class BlockList(QListWidget):
         button3 = QPushButton('Save')
 
         button1.clicked.connect(self.clear)
-        button2.clicked.connect(self.launch)
+        button2.clicked.connect(self.blocklist_function.execute_program)
 
         # Create the separator
         separator = QFrame()

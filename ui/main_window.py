@@ -5,6 +5,9 @@ from ui.work_area import WorkArea
 from ui.block_list import BlockList
 from blocks.for_block_item import ForBlockItem
 
+from functions.blocklist_function import BlocklistFunction
+from functions.work_area_function import WorkAreaFunction
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -12,7 +15,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Get Jinxed !")
         self.setGeometry(100, 100, 800, 600)
         self.work_area = WorkArea(self)
-        self.block_list = BlockList(parent=self.work_area)
+
+        self.work_area_function = WorkAreaFunction(self.work_area)
+        
+        self.blocklist_function = BlocklistFunction(self.work_area)
+        self.block_list = BlockList(self.blocklist_function, parent=self.work_area)
 
         block_names = ["Connection", "For", "While", "If", "Else", "Elif", "Walk", "Dance", "Rotate", "Side Step", "Scan", "Eye Move", "Stop", "Wait"]
 
@@ -27,11 +34,11 @@ class MainWindow(QMainWindow):
             button = QPushButton(name)
             button_layout.addWidget(button)
             if name == "On/Off":
-                button.clicked.connect(self.execute_program)
+                button.clicked.connect(self.work_area_function.execute_program)
             elif name == "Up":
                 button.clicked.connect(self.organize_blocks_and_execute)
             elif name == "Down":
-                button.clicked.connect(self.down_clicked)
+                button.clicked.connect(self.blocklist_function.execute_program)
             elif name == "Left":
                 button.clicked.connect(self.left_clicked)
             elif name == "Right":
@@ -51,12 +58,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         self.setWindowIcon(QIcon('hehehe'))
 
-    def execute_program(self):
-        work_area = self.work_area
-        blocks = work_area.get_widgets()
-        print(f"Nombre de blocs dans la zone de travail : {len(blocks)}")
-        connections = work_area.get_connections()
-        print(f"Nombre de connexions dans la zone de travail : {len(connections)}")
+    
 
     def organize_blocks_and_execute(self):
         work_area = self.work_area
