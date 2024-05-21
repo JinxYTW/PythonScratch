@@ -25,11 +25,13 @@ class BlockList(QListWidget):
         self.layout.addStretch(1)
 
         # Create the buttons
-        button1 = QPushButton('Clear')
-        button2 = QPushButton('Launch')
-        button3 = QPushButton('Save')
+        
+        button1 = QPushButton('Launch')
+        button2 = QPushButton('Save')
+        button3 = QPushButton('Clear')
 
-        button1.clicked.connect(self.clear)
+        
+        button1.clicked.connect(self.blocklist_function.organize_blocks_for_execution)
         button2.clicked.connect(self.blocklist_function.execute_program)
 
         # Create the separator

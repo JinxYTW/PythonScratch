@@ -34,19 +34,19 @@ class MainWindow(QMainWindow):
             button = QPushButton(name)
             button_layout.addWidget(button)
             if name == "On/Off":
-                button.clicked.connect(self.work_area_function.execute_program)
+                button.clicked.connect(self.work_area_function.on_off_clicked)
             elif name == "Up":
-                button.clicked.connect(self.organize_blocks_and_execute)
+                button.clicked.connect(self.work_area_function.down_clicked)
             elif name == "Down":
-                button.clicked.connect(self.blocklist_function.execute_program)
+                button.clicked.connect(self.work_area_function.down_clicked)
             elif name == "Left":
-                button.clicked.connect(self.left_clicked)
+                button.clicked.connect(self.work_area_function.left_clicked)
             elif name == "Right":
-                button.clicked.connect(self.right_clicked)
+                button.clicked.connect(self.work_area_function.right_clicked)
             elif name == "Turn Left":
-                button.clicked.connect(self.turn_left_clicked)
+                button.clicked.connect(self.work_area_function.turn_left_clicked)
             elif name == "Turn Right":
-                button.clicked.connect(self.turn_right_clicked)
+                button.clicked.connect(self.work_area_function.turn_right_clicked)
 
         main_layout = QGridLayout()
         main_layout.addWidget(self.block_list, 0, 0)
@@ -60,21 +60,6 @@ class MainWindow(QMainWindow):
 
     
 
-    def organize_blocks_and_execute(self):
-        work_area = self.work_area
-        work_area.organize_blocks_for_execution()
+    
 
-    def down_clicked(self):
-        print("Le bouton 'Down' a été cliqué!")
-
-    def left_clicked(self):
-        print("Le bouton 'Left' a été cliqué!")
-
-    def right_clicked(self):
-        print("Le bouton 'Right' a été cliqué!")
-
-    def turn_left_clicked(self):
-        print("Le bouton 'Turn Left' a été cliqué!")
-
-    def turn_right_clicked(self):
-        print("Le bouton 'Turn Right' a été cliqué!")
+    

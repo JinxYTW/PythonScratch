@@ -16,6 +16,12 @@ class WorkAreaFunction:
         work_area = self.work_area
         work_area.organize_blocks_for_execution()
 
+    def on_off_clicked(self):
+        print("Le bouton 'On/Off' a été cliqué!")
+
+    def up_clicked(self):
+        print("Le bouton 'Up' a été cliqué!")
+
     def down_clicked(self):
         print("Le bouton 'Down' a été cliqué!")
 

@@ -152,3 +152,6 @@ class WorkArea(QGraphicsView):
         print("Ordered Blocks:")
         for block_info in ordered_blocks:
             print_block_info(block_info)
+
+
+    
