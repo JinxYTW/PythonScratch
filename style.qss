@@ -65,4 +65,9 @@ QGraphicsView {
     background-color: #616464;
 }
 
+/*QLabel*/
+QLabel{
+    color: white;
+}
+
 
