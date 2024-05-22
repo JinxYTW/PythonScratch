@@ -62,22 +62,22 @@ class ForBlockWidget(QGraphicsWidget):
         variable_label_proxy = QGraphicsProxyWidget()
         variable_label_proxy.setWidget(variable_label)
 
-        # Add widgets for editing parameters
-        variable_edit = QLineEdit("i")
-        variable_edit.setFixedWidth(30)
-        range_start_edit = QLineEdit("0")
-        range_start_edit.setFixedWidth(30)
-        range_end_edit = QLineEdit("10")
-        range_end_edit.setFixedWidth(30)
+       # Add widgets for editing parameters
+        self.variable_edit = QLineEdit("i")  # Make this an instance attribute
+        self.variable_edit.setFixedWidth(30)
+        self.range_start_edit = QLineEdit("0")  # Make this an instance attribute
+        self.range_start_edit.setFixedWidth(30)
+        self.range_end_edit = QLineEdit("10")  # Make this an instance attribute
+        self.range_end_edit.setFixedWidth(30)
 
         variable_edit_proxy = QGraphicsProxyWidget()
-        variable_edit_proxy.setWidget(variable_edit)
+        variable_edit_proxy.setWidget(self.variable_edit)
 
         range_start_edit_proxy = QGraphicsProxyWidget()
-        range_start_edit_proxy.setWidget(range_start_edit)
+        range_start_edit_proxy.setWidget(self.range_start_edit)
 
         range_end_edit_proxy = QGraphicsProxyWidget()
-        range_end_edit_proxy.setWidget(range_end_edit)
+        range_end_edit_proxy.setWidget(self.range_end_edit)
 
         layout.addItem(variable_label_proxy,0,0)
         layout.addItem(variable_edit_proxy,0,1)
@@ -163,6 +163,15 @@ class ForBlockWidget(QGraphicsWidget):
         # Draw ellipse for output connection point
         painter.setBrush(Qt.GlobalColor.red)
         painter.drawEllipse(self.output_connection_points[0].rect())
+
+    def get_variable(self):
+        return self.variable_edit.text()
+    
+    def get_range_start(self):
+        return self.range_start_edit.text()
+    
+    def get_range_end(self):
+        return self.range_end_edit.text()
 
 class WhileBlockWidget(QGraphicsWidget):
     def __init__(self):

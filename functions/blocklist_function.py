@@ -1,4 +1,6 @@
 from ui.work_area import WorkArea
+from blocks.design import ForBlockWidget
+from models.interpreter import ForBlock
 
 class BlocklistFunction:
     def __init__(self,work_area):
@@ -58,3 +60,33 @@ class BlocklistFunction:
         print("Ordered Blocks:")
         for block_info in ordered_blocks:
             print_block_info(block_info)
+
+         # Generate the code from the ordered blocks
+        code = ""
+        for block_info in ordered_blocks:
+            block_widget = block_info[0]
+            if isinstance(block_widget, ForBlockWidget):
+                var = block_widget.get_variable()
+                range_start = block_widget.get_range_start()
+                range_end = block_widget.get_range_end()
+                body_blocks = block_info[1]
+                body_code = [self.convert_block_to_interpreter(b) for b in body_blocks]
+                code += ForBlock(var, range_start, range_end, body_code).to_python_code()
+            # Ajoutez des conditions similaires pour d'autres types de blocs...
+
+        print(code)
+        try:
+            exec(code)
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def convert_block_to_interpreter(self, block_info):
+        block_widget = block_info[0]
+        if isinstance(block_widget, ForBlockWidget):
+            var = block_widget.get_variable()
+            range_start = block_widget.get_range_start()
+            range_end = block_widget.get_range_end()
+            body_blocks = block_info[1]
+            body_code = [self.convert_block_to_interpreter(b) for b in body_blocks]
+            return ForBlock(var, range_start, range_end, body_code)
+        # Ajoutez des conditions similaires pour d'autres types de blocs...
