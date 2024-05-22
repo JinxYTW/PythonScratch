@@ -4,7 +4,7 @@ from PyQt6.QtGui import QDrag, QPen, QBrush
 
 from models.connection_manager import ConnectionManager
 from models.block_manager import BlockManager
-from blocks.design import ConnectionPoint
+from blocks.connection_point import ConnectionPoint
 from blocks.for_block_item import ForBlockItem
 
 class WorkArea(QGraphicsView):

@@ -1,5 +1,5 @@
 from ui.work_area import WorkArea
-from blocks.design import ForBlockWidget
+from blocks.for_block_widget import ForBlockWidget
 from models.interpreter import ForBlock
 
 class BlocklistFunction:

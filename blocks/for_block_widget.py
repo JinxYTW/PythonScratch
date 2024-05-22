@@ -3,36 +3,7 @@ from PyQt6.QtGui import QPainter
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QGraphicsEllipseItem
 
-class ConnectionPoint(QGraphicsEllipseItem):
-    def __init__(self, parent_block, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.parent_block = parent_block
-        self.setAcceptHoverEvents(True)
-        self.isConnectionPoint = True
-        self.default_color = Qt.GlobalColor.black
-        self.hover_color = Qt.GlobalColor.green
-        self.clicked_color = Qt.GlobalColor.red
-        self.setBrush(self.default_color)
-       
-
-    def hoverEnterEvent(self, event):
-        self.setBrush(self.hover_color)
-        super().hoverEnterEvent(event)
-
-    def hoverLeaveEvent(self, event):
-        self.setBrush(self.default_color)
-        super().hoverLeaveEvent(event)
-
-    def mousePressEvent(self, event):
-        self.setBrush(self.clicked_color)
-        super().mousePressEvent(event)
-
-    def mouseReleaseEvent(self, event):
-        self.setBrush(self.default_color)
-        super().mouseReleaseEvent(event)
-
-
-
+from blocks.connection_point import ConnectionPoint
 
 class ForBlockWidget(QGraphicsWidget):
     def __init__(self):
