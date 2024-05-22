@@ -6,6 +6,7 @@ from models.connection_manager import ConnectionManager
 from models.block_manager import BlockManager
 from blocks.connection_point import ConnectionPoint
 from blocks.for_block_item import ForBlockItem
+from blocks.walk_block_item import WalkBlockItem
 
 class WorkArea(QGraphicsView):
     def __init__(self, parent=None):
@@ -104,6 +105,8 @@ class WorkArea(QGraphicsView):
         for item in self.scene.items():
             if isinstance(item, ForBlockItem) :
                 blocks.append(item.for_block)
+            elif isinstance(item, WalkBlockItem):
+                blocks.append(item.walk_block)
         return blocks
 
     def get_connections(self):

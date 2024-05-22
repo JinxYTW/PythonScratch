@@ -1,6 +1,8 @@
 from ui.work_area import WorkArea
 from blocks.for_block_widget import ForBlockWidget
+from blocks.walk_block_widget import WalkBlockWidget
 from models.interpreter import ForBlock
+from models.interpreter import WalkBlock
 
 class BlocklistFunction:
     def __init__(self,work_area):
@@ -72,6 +74,9 @@ class BlocklistFunction:
                 body_blocks = block_info[1]
                 body_code = [self.convert_block_to_interpreter(b) for b in body_blocks]
                 code += ForBlock(var, range_start, range_end, body_code).to_python_code()
+            elif isinstance(block_widget, WalkBlockWidget):
+                distance = block_widget.get_distance()
+                code += WalkBlock(distance).to_python_code()
             # Ajoutez des conditions similaires pour d'autres types de blocs...
 
         print(code)
@@ -89,4 +94,7 @@ class BlocklistFunction:
             body_blocks = block_info[1]
             body_code = [self.convert_block_to_interpreter(b) for b in body_blocks]
             return ForBlock(var, range_start, range_end, body_code)
+        elif isinstance(block_widget, WalkBlockWidget):
+            distance = block_widget.get_distance()
+            return f"walk({distance})"
         # Ajoutez des conditions similaires pour d'autres types de blocs...
