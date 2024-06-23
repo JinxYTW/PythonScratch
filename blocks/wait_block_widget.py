@@ -1,43 +1,45 @@
-from PyQt6.QtWidgets import  QLabel, QLineEdit,QGraphicsWidget, QGraphicsProxyWidget, QGraphicsLinearLayout,QGraphicsGridLayout
+from PyQt6.QtWidgets import QLabel, QLineEdit, QGraphicsWidget, QGraphicsProxyWidget, QGraphicsGridLayout
 from PyQt6.QtGui import QPainter
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QGraphicsEllipseItem
 
 from blocks.connection_point import ConnectionPoint
 
-class WalkBlockWidget(QGraphicsWidget):
+class WaitBlockWidget(QGraphicsWidget):
     def __init__(self):
         super().__init__()
 
-        # Create a layout for organizing the internal widgets
         layout = QGraphicsGridLayout()
         self.setLayout(layout)
         self.input_connection_points = []
         self.output_connection_points = []
 
-        # Ajouter des étiquettes et des zones d'édition pour la distance
-        distance_label = QLabel("WALK:")
-        distance_label.setStyleSheet(
-            "font-size: 8px; color: ; border: none; padding-right: 5px; background-color: transparent;"
+        wait_label = QLabel("WAIT")
+        wait_label.setStyleSheet(
+            "font-size: 10px; color: ; border: none; padding-right: 5px; background-color: transparent;"
         )
-        
-        distance_label_proxy = QGraphicsProxyWidget()
-        distance_label_proxy.setWidget(distance_label)
 
-       
+        duration_label = QLabel("Duration:")
+        self.duration_edit = QLineEdit("1000")
+        self.duration_edit.setFixedWidth(30)
 
-        
+        wait_label_proxy = QGraphicsProxyWidget()
+        wait_label_proxy.setWidget(wait_label)
 
-        layout.addItem(distance_label_proxy, 0, 0)
-        
+        duration_label_proxy = QGraphicsProxyWidget()
+        duration_label_proxy.setWidget(duration_label)
 
-        # Adjust spacing and margins
-        layout.setHorizontalSpacing(10)  # Set horizontal spacing between columns
-        layout.setVerticalSpacing(5)  # Set vertical spacing between rows
-        layout.setContentsMargins(10, 10, 10, 10)  # Set margins around the layout
+        duration_edit_proxy = QGraphicsProxyWidget()
+        duration_edit_proxy.setWidget(self.duration_edit)
 
-        # Set the minimum size of the block
-        layout.setMinimumSize(200, 100)
+        layout.addItem(wait_label_proxy, 0, 0)
+        layout.addItem(duration_label_proxy, 1, 0)
+        layout.addItem(duration_edit_proxy, 1, 1)
+
+        layout.setHorizontalSpacing(10)
+        layout.setVerticalSpacing(5)
+        layout.setContentsMargins(10, 10, 10, 10)
+
+        layout.setMinimumSize(200, 50)
 
     def add_input_connection_points(self):
         input_point = ConnectionPoint(self)
@@ -66,14 +68,12 @@ class WalkBlockWidget(QGraphicsWidget):
         if not self.output_connection_points:
             self.add_output_connection_points()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
         super().paint(painter, option, widget)
-
         painter.setBrush(Qt.GlobalColor.black)
         for ellipse in self.input_connection_points:
             painter.drawEllipse(ellipse.rect())
-
         painter.setBrush(Qt.GlobalColor.red)
         painter.drawEllipse(self.output_connection_points[0].rect())
-        # Hide the second output connection point (body_code)
-        # You can choose to not draw it, or simply not add it to the scene
+
+    def get_duration(self):
+        return self.duration_edit.text()

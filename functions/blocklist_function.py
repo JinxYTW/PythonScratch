@@ -1,16 +1,20 @@
+from functions.marty_function import MartyFunction
 from ui.work_area import WorkArea
 from blocks.for_block_widget import ForBlockWidget
 from blocks.walk_block_widget import WalkBlockWidget
-from models.interpreter import ForBlock
-from models.interpreter import WalkBlock
+from blocks.connect_block_widget import ConnectBlockWidget  
+from blocks.dance_block_widget import DanceBlockWidget
+from blocks.rotate_block_widget import RotateBlockWidget
+from blocks.side_step_block_widget import SideStepBlockWidget
+from blocks.wait_block_widget import WaitBlockWidget
+from models.interpreter import ForBlock, WalkBlock,ConnectBlock, DanceBlock, RotateBlock, SideStepBlock, WaitBlock
+from models.ip_manager import IPManager
 
 class BlocklistFunction:
-    def __init__(self,work_area):
-        
+    def __init__(self, work_area):
         self.work_area = work_area
+        self.marty_ip = IPManager.get_instance().get_ip_address1()
 
-    
-    
     def execute_program(self):
         work_area = self.work_area
         blocks = work_area.get_widgets()
@@ -18,12 +22,11 @@ class BlocklistFunction:
         connections = work_area.get_connections()
         print(f"Nombre de connexions dans la zone de travail : {len(connections)}")
 
-
     def organize_blocks_for_execution(self):
         blocks = self.work_area.get_widgets()
         print(blocks)
         connections = self.work_area.get_connections()
-        print (connections)
+        print(connections)
         next_blocks = {block: {'loop_exit': [], 'body_code': []} for block in blocks}
 
         for start_block, end_block, connection_point in connections:
@@ -63,8 +66,12 @@ class BlocklistFunction:
         for block_info in ordered_blocks:
             print_block_info(block_info)
 
-         # Generate the code from the ordered blocks
-        code = ""
+        # Generate the code from the ordered blocks
+        code = """
+marty_function = MartyFunction("{marty_ip}")
+marty_function.connect()
+""".format(marty_ip=self.marty_ip)
+
         for block_info in ordered_blocks:
             block_widget = block_info[0]
             if isinstance(block_widget, ForBlockWidget):
@@ -75,9 +82,21 @@ class BlocklistFunction:
                 body_code = [self.convert_block_to_interpreter(b) for b in body_blocks]
                 code += ForBlock(var, range_start, range_end, body_code).to_python_code()
             elif isinstance(block_widget, WalkBlockWidget):
-                distance = block_widget.get_distance()
-                code += WalkBlock(distance).to_python_code()
-            # Ajoutez des conditions similaires pour d'autres types de blocs...
+                code += "marty_function.walk(steps=2, direction='auto', turn=0, step_length=35, step_time=1500)\n"
+            elif isinstance(block_widget, ConnectBlockWidget):
+                code += self.connect_marty_code()
+            elif isinstance(block_widget, DanceBlockWidget):
+                code += "marty_function.dance()\n"
+            elif isinstance(block_widget, RotateBlockWidget):
+                angle = block_widget.get_angle()
+                code += f"marty_function.turn(turn_amount={angle})\n"
+            elif isinstance(block_widget, SideStepBlockWidget):
+                direction = block_widget.get_direction()
+                code += f"marty_function.side_step(direction='{direction}')\n"
+            elif isinstance(block_widget, WaitBlockWidget):
+                seconds = block_widget.get_duration()
+                code += f"marty_function.wait(seconds={seconds})\n"
+
 
         print(code)
         try:
@@ -95,6 +114,29 @@ class BlocklistFunction:
             body_code = [self.convert_block_to_interpreter(b) for b in body_blocks]
             return ForBlock(var, range_start, range_end, body_code)
         elif isinstance(block_widget, WalkBlockWidget):
-            distance = block_widget.get_distance()
-            return f"walk({distance})"
-        # Ajoutez des conditions similaires pour d'autres types de blocs...
+            return WalkBlock(2)
+        elif isinstance(block_widget, ConnectBlockWidget):
+            return self.connect_marty_code()
+        elif isinstance(block_widget, DanceBlockWidget):
+            return DanceBlock()
+        elif isinstance(block_widget, RotateBlockWidget):
+            angle = block_widget.get_angle()
+            return RotateBlock(angle)
+        elif isinstance(block_widget, SideStepBlockWidget):
+            direction = block_widget.get_direction() 
+            return SideStepBlock(direction)
+        elif isinstance(block_widget, WaitBlockWidget):
+            seconds = block_widget.get_duration()  
+            return WaitBlock(seconds)
+        
+
+
+
+
+
+
+    def connect_marty_code(self):
+        return """
+marty_function = MartyFunction("{marty_ip}")
+marty_function.connect()
+""".format(marty_ip=self.marty_ip)

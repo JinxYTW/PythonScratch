@@ -2,11 +2,18 @@ from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsLineItem, QG
 from PyQt6.QtCore import Qt, QPoint, QPointF, QMimeData
 from PyQt6.QtGui import QDrag, QPen, QBrush
 
+
 from models.connection_manager import ConnectionManager
 from models.block_manager import BlockManager
 from blocks.connection_point import ConnectionPoint
 from blocks.for_block_item import ForBlockItem
 from blocks.walk_block_item import WalkBlockItem
+from blocks.connect_block_item import ConnectBlockItem
+from blocks.dance_block_item import DanceBlockItem
+from blocks.rotate_block_item import RotateBlockItem
+from blocks.side_step_block_item import SideStepBlockItem
+from blocks.wait_block_item import WaitBlockItem
+
 
 class WorkArea(QGraphicsView):
     def __init__(self, parent=None):
@@ -107,6 +114,17 @@ class WorkArea(QGraphicsView):
                 blocks.append(item.for_block)
             elif isinstance(item, WalkBlockItem):
                 blocks.append(item.walk_block)
+            elif isinstance(item, ConnectBlockItem):
+                blocks.append(item.connect_block)
+            elif isinstance(item, DanceBlockItem):
+                blocks.append(item.dance_block)
+            elif isinstance(item, RotateBlockItem):
+                blocks.append(item.rotate_block)
+            elif isinstance(item, SideStepBlockItem):
+                blocks.append(item.side_step_block)
+            elif isinstance(item, WaitBlockItem):
+                blocks.append(item.wait_block)
+                
         return blocks
 
     def get_connections(self):

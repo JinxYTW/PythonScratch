@@ -1,11 +1,9 @@
-from PyQt6.QtWidgets import  QLabel, QLineEdit,QGraphicsWidget, QGraphicsProxyWidget, QGraphicsLinearLayout,QGraphicsGridLayout
+from PyQt6.QtWidgets import QLabel, QGraphicsWidget, QGraphicsProxyWidget, QGraphicsGridLayout
 from PyQt6.QtGui import QPainter
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QGraphicsEllipseItem
-
 from blocks.connection_point import ConnectionPoint
 
-class WalkBlockWidget(QGraphicsWidget):
+class ConnectBlockWidget(QGraphicsWidget):
     def __init__(self):
         super().__init__()
 
@@ -15,21 +13,16 @@ class WalkBlockWidget(QGraphicsWidget):
         self.input_connection_points = []
         self.output_connection_points = []
 
-        # Ajouter des étiquettes et des zones d'édition pour la distance
-        distance_label = QLabel("WALK:")
-        distance_label.setStyleSheet(
+        # Ajouter une étiquette pour CONNECT
+        connect_label = QLabel("CONNECT:")
+        connect_label.setStyleSheet(
             "font-size: 8px; color: ; border: none; padding-right: 5px; background-color: transparent;"
         )
         
-        distance_label_proxy = QGraphicsProxyWidget()
-        distance_label_proxy.setWidget(distance_label)
+        connect_label_proxy = QGraphicsProxyWidget()
+        connect_label_proxy.setWidget(connect_label)
 
-       
-
-        
-
-        layout.addItem(distance_label_proxy, 0, 0)
-        
+        layout.addItem(connect_label_proxy, 0, 0)
 
         # Adjust spacing and margins
         layout.setHorizontalSpacing(10)  # Set horizontal spacing between columns
@@ -75,5 +68,4 @@ class WalkBlockWidget(QGraphicsWidget):
 
         painter.setBrush(Qt.GlobalColor.red)
         painter.drawEllipse(self.output_connection_points[0].rect())
-        # Hide the second output connection point (body_code)
-        # You can choose to not draw it, or simply not add it to the scene
+        # The body_code connection point is hidden, so it is not added to the scene or drawn.

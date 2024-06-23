@@ -1,43 +1,45 @@
-from PyQt6.QtWidgets import  QLabel, QLineEdit,QGraphicsWidget, QGraphicsProxyWidget, QGraphicsLinearLayout,QGraphicsGridLayout
+from PyQt6.QtWidgets import QLabel, QLineEdit, QGraphicsWidget, QGraphicsProxyWidget, QGraphicsGridLayout
 from PyQt6.QtGui import QPainter
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QGraphicsEllipseItem
 
 from blocks.connection_point import ConnectionPoint
 
-class WalkBlockWidget(QGraphicsWidget):
+class RotateBlockWidget(QGraphicsWidget):
     def __init__(self):
         super().__init__()
 
-        # Create a layout for organizing the internal widgets
         layout = QGraphicsGridLayout()
         self.setLayout(layout)
         self.input_connection_points = []
         self.output_connection_points = []
 
-        # Ajouter des étiquettes et des zones d'édition pour la distance
-        distance_label = QLabel("WALK:")
-        distance_label.setStyleSheet(
-            "font-size: 8px; color: ; border: none; padding-right: 5px; background-color: transparent;"
+        rotate_label = QLabel("ROTATE")
+        rotate_label.setStyleSheet(
+            "font-size: 10px; color: ; border: none; padding-right: 5px; background-color: transparent;"
         )
-        
-        distance_label_proxy = QGraphicsProxyWidget()
-        distance_label_proxy.setWidget(distance_label)
 
-       
+        angle_label = QLabel("Angle:")
+        self.angle_edit = QLineEdit("90")
+        self.angle_edit.setFixedWidth(30)
 
-        
+        rotate_label_proxy = QGraphicsProxyWidget()
+        rotate_label_proxy.setWidget(rotate_label)
 
-        layout.addItem(distance_label_proxy, 0, 0)
-        
+        angle_label_proxy = QGraphicsProxyWidget()
+        angle_label_proxy.setWidget(angle_label)
 
-        # Adjust spacing and margins
-        layout.setHorizontalSpacing(10)  # Set horizontal spacing between columns
-        layout.setVerticalSpacing(5)  # Set vertical spacing between rows
-        layout.setContentsMargins(10, 10, 10, 10)  # Set margins around the layout
+        angle_edit_proxy = QGraphicsProxyWidget()
+        angle_edit_proxy.setWidget(self.angle_edit)
 
-        # Set the minimum size of the block
-        layout.setMinimumSize(200, 100)
+        layout.addItem(rotate_label_proxy, 0, 0)
+        layout.addItem(angle_label_proxy, 1, 0)
+        layout.addItem(angle_edit_proxy, 1, 1)
+
+        layout.setHorizontalSpacing(10)
+        layout.setVerticalSpacing(5)
+        layout.setContentsMargins(10, 10, 10, 10)
+
+        layout.setMinimumSize(200, 50)
 
     def add_input_connection_points(self):
         input_point = ConnectionPoint(self)
@@ -66,14 +68,12 @@ class WalkBlockWidget(QGraphicsWidget):
         if not self.output_connection_points:
             self.add_output_connection_points()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
         super().paint(painter, option, widget)
-
         painter.setBrush(Qt.GlobalColor.black)
         for ellipse in self.input_connection_points:
             painter.drawEllipse(ellipse.rect())
-
         painter.setBrush(Qt.GlobalColor.red)
         painter.drawEllipse(self.output_connection_points[0].rect())
-        # Hide the second output connection point (body_code)
-        # You can choose to not draw it, or simply not add it to the scene
+
+    def get_angle(self):
+        return self.angle_edit.text()
